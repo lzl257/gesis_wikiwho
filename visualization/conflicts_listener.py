@@ -32,7 +32,6 @@ class ConflictsListener():
                                                        'conflict': ['count', 'sum'],
                                                         'total': ['sum'],
                                                         'total_surv_48h': ['sum'],
-                                                        'total_persistent': ['sum'],
                                                         'total_stopword_count': ['sum']}).reset_index()
 
         df.loc[df[('conflict', 'count')] == 0, ('conflict', 'sum')] = np.nan
