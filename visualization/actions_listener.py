@@ -40,13 +40,13 @@ class ActionsListener():
             data.append(graph_objs.Scatter(
                 x=df['year_month'], y=df[blue],
                 name=blue,
-                marker=dict(color='rgba(0, 128, 43, 1)')))
+                marker=dict(color='rgba(0, 153, 255, .8)')))           
 
         if green != 'None':
             data.append(graph_objs.Scatter(
                 x=df['year_month'], y=df[green],
                 name=green,
-                marker=dict(color='rgba(0, 153, 255, .8)')))
+                marker=dict(color='rgba(0, 128, 43, 1)')))
 
         self.df_plotted = df
 
