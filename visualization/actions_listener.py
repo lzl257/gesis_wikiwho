@@ -21,7 +21,7 @@ class ActionsListener():
             df = df[df[self.editor_column] == editor]
 
         df = df.groupby(pd.Grouper(
-            key='year_month', freq=granularity[0])).sum().reset_index()
+            key='year_month', freq=granularity[0]+'S')).sum().reset_index()
 
         data = [
             graph_objs.Scatter(
