@@ -55,3 +55,51 @@ class WCListener():
         except ValueError:
             display(
                 md("Cannot create the wordcloud, there were zero conflict tokens."))
+
+class WCActionsListener():
+    
+    def __init__(self, sources, max_words=100):
+        self.sources = sources
+        self.max_words = max_words
+    
+    def listen(self, source, action):
+        df = self.sources[source]
+        
+        if action == 'adds':
+            df = df[df['in'] == -1]['token'] + '+'
+        elif action == 'dels':
+            df = df[df['out'] != -1]['token'] + '-'
+        elif action == 'reins':
+            df = df[df['in'] != -1]['token'] + '*'
+        else:
+            df = pd.concat([(df[df['in'] == -1]['token'] + '+'), 
+                            (df[df['out'] != -1]['token'] + '-'), 
+                            (df[df['in'] != -1]['token'] + '*')])
+        if len(df) == 0:
+            display(md(f"**There are no words to build the word cloud.**"))
+            return 0
+        
+        word_counts = df.value_counts()[:self.max_words]
+        colors = {'+': '#003399', '-': '#CC3300', '*': '#00ffcc'}
+
+        # Create word cloud
+        wc = WordClouder(word_counts, colors, self.max_words)
+
+        try:
+            wcr = wc.get_wordcloud()
+            display(md(f"**Only top {self.max_words} most frequent words displayed.**"))
+
+            # Plot
+            plt.figure(figsize=(14, 7))
+            plt.imshow(wcr, interpolation="bilinear")
+            plt.axis("off")
+            plt.show()
+
+        except ValueError:
+            display(
+                md("Cannot create the wordcloud, there were zero actions."))
+
+        
+        
+        
+            
