@@ -62,24 +62,30 @@ class WCActionsListener():
         self.sources = sources
         self.max_words = max_words
     
-    def listen(self, source, action):
+    def listen(self, _range, source, action):
         df = self.sources[source]
+        df = df[(df.rev_time.dt.date >= _range[0]) &
+                (df.rev_time.dt.date <= _range[1])]
         
-        if action == 'adds':
-            df = df[df['in'] == -1]['token'] + '+'
+        mask_minus_one = (df['o_rev_id'] == df['rev_id'])
+        
+        if action == 'adds':            
+            df = df.loc[mask_minus_one]
         elif action == 'dels':
-            df = df[df['out'] != -1]['token'] + '-'
+            df = df[df['action'] == 'out']
         elif action == 'reins':
-            df = df[df['in'] != -1]['token'] + '*'
-        else:
-            df = pd.concat([(df[df['in'] == -1]['token'] + '+'), 
-                            (df[df['out'] != -1]['token'] + '-'), 
-                            (df[df['in'] != -1]['token'] + '*')])
+            df = df[df['action'] == 'in'].loc[~mask_minus_one]
+        
+        df_adds = df.loc[mask_minus_one]['token'] + '+'
+        df_dels = df[df['action'] == 'out']['token'] + '-'
+        df_reins = df[df['action'] == 'in'].loc[~mask_minus_one]['token'] + '*'
+        df_all = pd.concat([df_adds, df_dels, df_reins])
+        
         if len(df) == 0:
             display(md(f"**There are no words to build the word cloud.**"))
             return 0
         
-        word_counts = df.value_counts()[:self.max_words]
+        word_counts = df_all.value_counts()[:self.max_words]
         colors = {'+': '#003399', '-': '#CC3300', '*': '#00ffcc'}
 
         # Create word cloud
@@ -88,6 +94,9 @@ class WCActionsListener():
         try:
             wcr = wc.get_wordcloud()
             display(md(f"**Only top {self.max_words} most frequent words displayed.**"))
+            
+            # Revisions involved
+            display(md(f"### The below token conflicts ocurred in a total of {len(df['rev_id'].unique())} revisions:"))
 
             # Plot
             plt.figure(figsize=(14, 7))
