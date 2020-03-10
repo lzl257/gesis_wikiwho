@@ -62,10 +62,10 @@ class WCActionsListener():
         self.sources = sources
         self.max_words = max_words
     
-    def listen(self, _range, source, action):
+    def listen(self, _range1, _range2, source, action):
         df = self.sources[source]
-        df = df[(df.rev_time.dt.date >= _range[0]) &
-                (df.rev_time.dt.date <= _range[1])]
+        df = df[(df.rev_time.dt.date >= _range1) &
+                (df.rev_time.dt.date <= _range2)]
         
         mask_minus_one = (df['o_rev_id'] == df['rev_id'])
         
