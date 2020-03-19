@@ -8,16 +8,9 @@ class TokensManager:
     """
     """
     
-    def __init__(self, all_content, revisions, maxwords):
-        self.all_content = all_content
-        self.revisions = revisions
+    def __init__(self, all_actions, maxwords):
         self.maxwords = maxwords
-        
-        # Calculate all actions using ConflictManager
-        conflict_cal = ConflictManager(self.all_content, self.revisions)
-        conflict_cal.calculate()
-        clear_output()
-        self.all_actions = conflict_cal.all_actions
+        self.all_actions = all_actions
         
     def _odd_true(self, number):
         """
@@ -101,23 +94,22 @@ class TokensManager:
             except:
                 #print(len(df_id), len(filter_mask_add))       
                 filter_mask_add_append = filter_mask_add.append(pd.Series([False]), ignore_index=True)
+                ori_token_filter_add = df_id.loc[filter_mask_add_append]
 
             try:
                 ori_token_filter_del = df_id.loc[filter_mask_del]
             except:
                 #print(len(df_id), len(filter_mask_del))
                 filter_mask_del_append = filter_mask_del.append(pd.Series([False]), ignore_index=True)
+                ori_token_filter_del = df_id.loc[filter_mask_del_append]
 
             try:
                 ori_token_filter_rein = df_id.loc[filter_mask_rein]
             except:
                 #print(len(df_id), len(filter_mask_rein))
                 filter_mask_rein_append = filter_mask_rein.append(pd.Series([False]), ignore_index=True)
-
-                ori_token_filter_add = df_id.loc[filter_mask_add_append]
-                ori_token_filter_del = df_id.loc[filter_mask_del_append]
-                ori_token_filter_rein = df_id.loc[filter_mask_rein_append]
-
+                ori_token_filter_rein = df_id.loc[filter_mask_rein_append]                       
+                            
             if len(ori_token_filter_add) != 0:
                 self.survive_fill_zeros(add_actions, ori_token_filter_add, token_id)
 
