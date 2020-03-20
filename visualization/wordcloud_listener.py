@@ -1,8 +1,13 @@
+import copy
+import qgrid
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from IPython.display import display, Markdown as md
+from IPython.display import display, Markdown as md, clear_output
+from ipywidgets import Output
 from .wordclouder import WordClouder
+
+from metrics.token import TokensManager
 
 
 class WCListener():
@@ -58,14 +63,24 @@ class WCListener():
 
 class WCActionsListener():
     
-    def __init__(self, sources, max_words=100):
+    def __init__(self, sources, token_source, max_words=100):
         self.sources = sources
         self.max_words = max_words
+        self.token_source = token_source
+        self._range1 = 0
+        self._range2 = 1
+        self.adds = None
+        self.dels = None
+        self.reins = None
     
     def listen(self, _range1, _range2, source, action):
         df = self.sources[source]
         df = df[(df.rev_time.dt.date >= _range1) &
                 (df.rev_time.dt.date <= _range2)]
+        
+        # For tokens.
+        df_token = (self.token_source).copy()
+        df_token = df_token[(df_token['rev_time'].dt.date >= _range1) & (df_token['rev_time'].dt.date <= _range2)]
         
         mask_minus_one = (df['o_rev_id'] == df['rev_id'])
         
@@ -107,6 +122,26 @@ class WCActionsListener():
         except ValueError:
             display(
                 md("Cannot create the wordcloud, there were zero actions."))
+            
+        token_calculator = TokensManager(df_token, maxwords=100)
+        if (self._range1 != _range1) | (self._range2 != _range2):
+            add_actions, del_actions, rein_actions = token_calculator.token_survive()
+                
+            self._range1 = copy.copy(_range1)
+            self._range2 = copy.copy(_range2)
+            self.adds = add_actions
+            self.dels = del_actions
+            self.reins = rein_actions     
+        else:
+            pass
+
+        tokens_action = token_calculator.get_all_tokens(self.adds, self.dels, self.reins)
+        if len(tokens_action) != 0:
+            qgrid_obj = qgrid.show_grid(tokens_action,grid_options={'forceFitColumns':False})
+            display(qgrid_obj)
+        else:
+            display(md('**There are no words to build the table.**'))
+            
 
         
         
