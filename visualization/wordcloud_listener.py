@@ -72,6 +72,27 @@ class WCActionsListener():
         self.adds = None
         self.dels = None
         self.reins = None
+        
+    def revid_selection_change(self, change):
+        with self.out2:
+            clear_output()
+            rev_selected = self.qgrid_selected_token.get_selected_df().reset_index()['rev_id'].iloc[0]
+
+            url = f'https://en.wikipedia.org/w/index.php?title=TITLEDOESNTMATTER&diff={rev_selected}&diffmode=source'
+            print(url)
+                   
+    def token_selection_change(self, change):
+        with self.out1:
+            clear_output()
+            token_selected = self.qgrid_token_obj.get_selected_df().reset_index()['token'].iloc[0]
+            df_selected_token = self.ranged_token[self.ranged_token['token'] == token_selected].set_index('rev_id')
+            qgrid_selected_token = qgrid.show_grid(df_selected_token,grid_options={'forceFitColumns':False})
+            self.qgrid_selected_token = qgrid_selected_token
+            display(self.qgrid_selected_token)
+            
+            self.out2 = Output()
+            display(self.out2)
+            self.qgrid_selected_token.observe(self.revid_selection_change, names=['_selected_rows'])
     
     def listen(self, _range1, _range2, source, action):
         df = self.sources[source]
@@ -131,16 +152,27 @@ class WCActionsListener():
             self._range2 = copy.copy(_range2)
             self.adds = add_actions
             self.dels = del_actions
-            self.reins = rein_actions     
+            self.reins = rein_actions
+            self.ranged_token = df_token
+            
         else:
             pass
 
         tokens_action = token_calculator.get_all_tokens(self.adds, self.dels, self.reins)
         if len(tokens_action) != 0:
-            qgrid_obj = qgrid.show_grid(tokens_action,grid_options={'forceFitColumns':False})
-            display(qgrid_obj)
+            qgrid_token_obj = qgrid.show_grid(tokens_action,grid_options={'forceFitColumns':False})
+            self.qgrid_token_obj = qgrid_token_obj
+            display(self.qgrid_token_obj)
+            
+            self.out1 = Output()
+            display(self.out1)
+            self.qgrid_token_obj.observe(self.token_selection_change, names=['_selected_rows'])            
+            #return qgrid_token_obj
         else:
             display(md('**There are no words to build the table.**'))
+            
+
+        
             
 
         
