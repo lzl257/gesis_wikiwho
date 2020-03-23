@@ -88,6 +88,7 @@ class WCActionsListener():
             df_selected_token = self.ranged_token[self.ranged_token['token'] == token_selected].set_index('rev_id')
             qgrid_selected_token = qgrid.show_grid(df_selected_token,grid_options={'forceFitColumns':False})
             self.qgrid_selected_token = qgrid_selected_token
+            display(md('**Select one revision you want to investigate:**'))
             display(self.qgrid_selected_token)
             
             self.out2 = Output()
@@ -132,7 +133,7 @@ class WCActionsListener():
             display(md(f"**Only top {self.max_words} most frequent words displayed.**"))
             
             # Revisions involved
-            display(md(f"### The below token conflicts ocurred in a total of {len(df['rev_id'].unique())} revisions:"))
+            display(md(f"### The below tokens existed in a total of {len(df['rev_id'].unique())} revisions:"))
 
             # Plot
             plt.figure(figsize=(14, 7))
@@ -162,6 +163,7 @@ class WCActionsListener():
         if len(tokens_action) != 0:
             qgrid_token_obj = qgrid.show_grid(tokens_action,grid_options={'forceFitColumns':False})
             self.qgrid_token_obj = qgrid_token_obj
+            display(md('**Select one token you are interested in:**'))
             display(self.qgrid_token_obj)
             
             self.out1 = Output()
