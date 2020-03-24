@@ -89,12 +89,11 @@ class WCActionsListener():
             token_selected = self.qgrid_token_obj.get_selected_df().reset_index()['token'].iloc[0]
             selected_token = self.ranged_token[self.ranged_token['token'] == token_selected]
             df_selected_token = selected_token.drop(['page_id', 'o_editor', 'token', 'o_rev_id', 'article_title'], axis=1)
-            cols = list(df_selected_token.columns)
-            new_cols = cols[2:3] + cols[1:2] + cols[3:] + cols[0:1]
+            new_cols = ['token_id', 'action', 'rev_time', 'editor', 'rev_id']
             df_selected_token = df_selected_token[new_cols]
             df_selected_token['token_id'] = df_selected_token['token_id'].astype(str)
             df_selected_token['rev_id'] = df_selected_token['rev_id'].astype(str)
-            df_selected_token.set_index('rev_id', inplace=True)
+            df_selected_token.set_index('token_id', inplace=True)
 
             qgrid_selected_token = qgrid.show_grid(df_selected_token)
             self.qgrid_selected_token = qgrid_selected_token

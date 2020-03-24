@@ -160,7 +160,7 @@ class TokensManager:
         return merge_rough.sort_values(by=['total', 'survival'], ascending=False).reset_index().rename({'index': 'token'})
     
     
-    def get_all_tokens(self, adds, dels, reins):
+    def get_all_tokens(self, adds, dels, reins, ratio=True):
         """
         """
         # Count token strings.
@@ -194,6 +194,7 @@ class TokensManager:
             merge_init[col_name].loc[merge_init[col_name].isnull()] = null_values
 
         merge_init = merge_init.sort_values(by=list(merge_init.columns), ascending=False).fillna(0)
+        merge_init_noratio = merge_init.copy()
         
         # Survival ratio
         ratio_columns = ['adds_48h', 'dels_48h', 'reins_48h']
@@ -203,8 +204,11 @@ class TokensManager:
             merge_init.rename({col: col+'_ratio'}, axis=1, inplace=True)
         df_merge = merge_init.fillna(0)
         
-        return df_merge.sort_values(by=['adds'], ascending=False)
-        
+        if ratio:
+            return df_merge.sort_values(by=['adds'], ascending=False)
+        else:
+            return merge_init_noratio
+            
         
     
     
