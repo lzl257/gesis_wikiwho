@@ -84,8 +84,18 @@ class WCActionsListener():
     def token_selection_change(self, change):
         with self.out1:
             clear_output()
+
+            # Process the involved dataframe.
             token_selected = self.qgrid_token_obj.get_selected_df().reset_index()['token'].iloc[0]
-            df_selected_token = self.ranged_token[self.ranged_token['token'] == token_selected].set_index('rev_id')
+            df_selected_token = self.ranged_token[self.ranged_token['token'] == token_selected]
+            df_selected_token.drop(['page_id', 'o_editor', 'token', 'o_rev_id', 'article_title'], axis=1, inplace=True)
+            cols = list(df_selected_token.columns)
+            new_cols = cols[2:3] + cols[1:2] + cols[3:] + cols[0:1]
+            df_selected_token = df_selected_token[new_cols]
+            df_selected_token['token_id'] = df_selected_token['token_id'].astype(str)
+            df_selected_token['rev_id'] = df_selected_token['rev_id'].astype(str)
+            df_selected_token.set_index('rev_id', inplace=True)
+
             qgrid_selected_token = qgrid.show_grid(df_selected_token,grid_options={'forceFitColumns':False})
             self.qgrid_selected_token = qgrid_selected_token
             display(md('**Select one revision you want to investigate:**'))
