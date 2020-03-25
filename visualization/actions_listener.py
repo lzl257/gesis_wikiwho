@@ -10,12 +10,12 @@ class ActionsListener():
         self.editor_column = editor_column
         self.df_plotted = None
 
-    def listen(self, _range, editor, granularity,
+    def listen(self, _range1, _range2, editor, granularity,
                black, red, blue, green):
         df = self.df
 
-        df = df[(df.year_month.dt.date >= _range[0]) &
-                (df.year_month.dt.date <= _range[1])]
+        df = df[(df.year_month.dt.date >= _range1) &
+                (df.year_month.dt.date <= _range2)]
 
         if editor != 'All':
             df = df[df[self.editor_column] == editor]
@@ -58,5 +58,6 @@ class ActionsListener():
                                    legend=dict(x=0.5, y=1.2),
                                    showlegend=True, barmode='group')
 
-        plotly.offline.init_notebook_mode(connected=True)
+        plotly.offline.init_notebook_mode(connected=True)        
         plotly.offline.iplot({"data": data, "layout": layout})
+        

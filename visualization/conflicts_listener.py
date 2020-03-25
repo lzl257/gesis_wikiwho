@@ -18,11 +18,11 @@ class ConflictsListener():
         self.df = df
         self.df_plotted = None
 
-    def listen(self, _range, granularity, black, red):
+    def listen(self, _range1, _range2, granularity, black, red):
         df = self.df
 
-        df = df[(df.year_month.dt.date >= _range[0]) &
-                (df.year_month.dt.date <= _range[1])]
+        df = df[(df.year_month.dt.date >= _range1) &
+                (df.year_month.dt.date <= _range2)]
 
         # calculate the aggreated values
         df = df.groupby(pd.Grouper(
@@ -138,11 +138,17 @@ class ConflictsListener():
             y = df.loc[sel, 'elegibles_n']
             self.is_norm_scale = False
 
+#         self.traces.append(
+#             graph_objs.Scatter(
+#                 x=df.loc[sel,'year_month'], y=y,
+#                 name=metric,
+#                 marker=dict(color=color), mode='markers')
+#         )
+
         self.traces.append(
-            graph_objs.Scatter(
+            graph_objs.Bar(
                 x=df.loc[sel,'year_month'], y=y,
-                name=metric,
-                marker=dict(color=color))
+                name=metric)
         )
 
         return df
