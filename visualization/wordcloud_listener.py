@@ -90,7 +90,7 @@ class WCActionsListener():
             selected_token = self.ranged_token[self.ranged_token['token'] == token_selected]
             df_selected_token = selected_token.drop(['page_id', 'o_editor', 'token', 'o_rev_id', 'article_title'], axis=1)
             new_cols = ['token_id', 'action', 'rev_time', 'editor', 'rev_id']
-            df_selected_token = df_selected_token[new_cols]
+            df_selected_token = df_selected_token[new_cols].rename({'editor': 'editor_id'}, axis=1)
             df_selected_token['token_id'] = df_selected_token['token_id'].astype(str)
             df_selected_token['rev_id'] = df_selected_token['rev_id'].astype(str)
             df_selected_token.set_index('token_id', inplace=True)
