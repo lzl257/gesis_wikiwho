@@ -76,10 +76,13 @@ class WCActionsListener():
     def revid_selection_change(self, change):
         with self.out2:
             clear_output()
-            rev_selected = self.qgrid_selected_token.get_selected_df().reset_index()['rev_id'].iloc[0]
-
-            url = f'https://en.wikipedia.org/w/index.php?title=TITLEDOESNTMATTER&diff={rev_selected}&diffmode=source'
-            print(url)
+            selected_df = self.qgrid_selected_token.get_selected_df()
+            if len(selected_df) == 0:
+                print('Please select a revision!')
+            else:
+                rev_selected = self.qgrid_selected_token.get_selected_df().reset_index()['rev_id'].iloc[0]
+                url = f'https://en.wikipedia.org/w/index.php?title=TITLEDOESNTMATTER&diff={rev_selected}&diffmode=source'
+                print(url)
                    
     def token_selection_change(self, change):
         with self.out1:
