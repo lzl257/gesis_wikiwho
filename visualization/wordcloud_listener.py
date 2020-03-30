@@ -73,6 +73,10 @@ class WCActionsListener():
         self.dels = None
         self.reins = None
         
+        
+        self.token_calculator = TokensManager(self.token_source, maxwords=self.max_words)
+        self.add_actions, self.del_actions, self.rein_actions = self.token_calculator.token_survive()
+        
     def revid_selection_change(self, change):
         with self.out2:
             clear_output()
@@ -113,20 +117,19 @@ class WCActionsListener():
         # For tokens.
         df_token = (self.token_source).copy()
         
-        token_calculator = TokensManager(df_token, maxwords=self.max_words)        
+        #token_calculator = TokensManager(df_token, maxwords=self.max_words)        
         if (self._range1 != _range1) | (self._range2 != _range2):
-            add_actions, del_actions, rein_actions = token_calculator.token_survive()
             self._range1 = copy.copy(_range1)
             self._range2 = copy.copy(_range2)
-            self.adds = add_actions[(add_actions['rev_time'].dt.date >= _range1) & (add_actions['rev_time'].dt.date <= _range2)]
-            self.dels = del_actions[(del_actions['rev_time'].dt.date >= _range1) & (del_actions['rev_time'].dt.date <= _range2)]
-            self.reins = rein_actions[(rein_actions['rev_time'].dt.date >= _range1) & (rein_actions['rev_time'].dt.date <= _range2)]
+            self.adds = self.add_actions[(self.add_actions['rev_time'].dt.date >= _range1) & (self.add_actions['rev_time'].dt.date <= _range2)]
+            self.dels = self.del_actions[(self.del_actions['rev_time'].dt.date >= _range1) & (self.del_actions['rev_time'].dt.date <= _range2)]
+            self.reins = self.rein_actions[(self.rein_actions['rev_time'].dt.date >= _range1) & (self.rein_actions['rev_time'].dt.date <= _range2)]
             self.ranged_token = df_token[(df_token['rev_time'].dt.date >= _range1) & (df_token['rev_time'].dt.date <= _range2)]
             
         else:
             pass
         
-        tokens_action_no_ratio = token_calculator.get_all_tokens(self.adds, self.dels, self.reins, ratio=False)
+        tokens_action_no_ratio = self.token_calculator.get_all_tokens(self.adds, self.dels, self.reins, ratio=False)
         
         symbol_dict = {'adds': '+', 'adds_48h': '!', 'dels': '-', 'dels_48h': '@', 'reins': '*', 'reins_48h': '#'}
         if action == 'All':
@@ -168,7 +171,7 @@ class WCActionsListener():
             display(
                 md("Cannot create the wordcloud, there were zero actions."))
             
-        tokens_action = token_calculator.get_all_tokens(self.adds, self.dels, self.reins)
+        tokens_action = self.token_calculator.get_all_tokens(self.adds, self.dels, self.reins)
         if len(tokens_action) != 0:
             qgrid_token_obj = qgrid.show_grid(tokens_action,grid_options={'forceFitColumns':False})
             self.qgrid_token_obj = qgrid_token_obj
