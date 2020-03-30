@@ -112,18 +112,16 @@ class WCActionsListener():
         
         # For tokens.
         df_token = (self.token_source).copy()
-        df_token = df_token[(df_token['rev_time'].dt.date >= _range1) & (df_token['rev_time'].dt.date <= _range2)]
         
-        token_calculator = TokensManager(df_token, maxwords=self.max_words)
+        token_calculator = TokensManager(df_token, maxwords=self.max_words)        
         if (self._range1 != _range1) | (self._range2 != _range2):
             add_actions, del_actions, rein_actions = token_calculator.token_survive()
-                
             self._range1 = copy.copy(_range1)
             self._range2 = copy.copy(_range2)
-            self.adds = add_actions
-            self.dels = del_actions
-            self.reins = rein_actions
-            self.ranged_token = df_token
+            self.adds = add_actions[(add_actions['rev_time'].dt.date >= _range1) & (add_actions['rev_time'].dt.date <= _range2)]
+            self.dels = del_actions[(del_actions['rev_time'].dt.date >= _range1) & (del_actions['rev_time'].dt.date <= _range2)]
+            self.reins = rein_actions[(rein_actions['rev_time'].dt.date >= _range1) & (rein_actions['rev_time'].dt.date <= _range2)]
+            self.ranged_token = df_token[(df_token['rev_time'].dt.date >= _range1) & (df_token['rev_time'].dt.date <= _range2)]
             
         else:
             pass
