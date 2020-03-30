@@ -148,7 +148,7 @@ class ConflictsListener():
         self.traces.append(
             graph_objs.Bar(
                 x=df.loc[sel,'year_month'], y=y,
-                name=metric)
+                name=metric, marker_color=color)
         )
 
         return df
