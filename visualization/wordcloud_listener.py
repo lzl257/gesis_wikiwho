@@ -72,11 +72,13 @@ class WCActionsListener():
         self.adds = None
         self.dels = None
         self.reins = None
-        
-        
+                
         self.token_calculator = TokensManager(self.token_source, maxwords=self.max_words)
+        display(md('Check survival states for all actions...'))
         self.add_actions, self.del_actions, self.rein_actions = self.token_calculator.token_survive()
-        
+        display(md('Done!'))
+        clear_output()
+                        
     def revid_selection_change(self, change):
         with self.out2:
             clear_output()
