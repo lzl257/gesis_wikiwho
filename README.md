@@ -14,7 +14,7 @@ Particuarly, the notebooks it contains help in determining and expressing the im
 
 **No coding skills needed, but code is transparent**
 
-The demo needs no programming knowledge to be used, but offers transparency by simply masking code behind Jupyter's "App mode", allowing more experienced users to dive into the mechanics of the API calls and calculations behind it and immediately modfiy it for their own purpose. 
+The demo needs no programming knowledge to be used, but offers transparency by simp啦啦啦y masking code behind Jupyter's "App mode", allowing more experienced users to dive into the mechanics of the API calls and calculations behind it and immediately modfiy it for their own purpose. 
 
 **Live data**
 
