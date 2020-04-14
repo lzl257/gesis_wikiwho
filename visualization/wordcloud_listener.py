@@ -13,42 +13,46 @@ from metrics.conflict import ConflictManager
 
 class WCListener():
 
-    def __init__(self, sources, lng, specific_editor=None, max_words=100):
+    def __init__(self, sources, lng, specific_editor=None, user_defined_source=None, max_words=100):
         self.sources = sources
         self.max_words = max_words
         self.lng = lng
         self.specific_editor = specific_editor
+        self.uds = user_defined_source
 
     def listen(self, _range1, _range2, editor, source, action, stopwords):
-        # Get source data. 
-        if stopwords == 'Not included':
-            cp_all = self.sources['All content'].copy()
-            cp_revisions = self.sources['Revisions'].copy()
-            conflict_calculator = ConflictManager(cp_all, cp_revisions, lng=self.lng)
-        else:
-            cp_all = self.sources['All content'].copy()
-            cp_revisions = self.sources['Revisions'].copy()
-            conflict_calculator = ConflictManager(cp_all, cp_revisions, lng=self.lng, include_stopwords=True)
+        if self.uds == None:
+            # Get source data through ConflictManager. 
+            if stopwords == 'Not included':
+                cp_all = self.sources['All content'].copy()
+                cp_revisions = self.sources['Revisions'].copy()
+                conflict_calculator = ConflictManager(cp_all, cp_revisions, lng=self.lng)
+            else:
+                cp_all = self.sources['All content'].copy()
+                cp_revisions = self.sources['Revisions'].copy()
+                conflict_calculator = ConflictManager(cp_all, cp_revisions, lng=self.lng, include_stopwords=True)
+
+            conflict_calculator.calculate()
+            clear_output()
+
+            if self.specific_editor != None:
+                conflict_all = conflict_calculator.all_actions[conflict_calculator.all_actions['editor']==self.specific_editor]
+                conflict_elegible = conflict_calculator.elegible_actions[conflict_calculator.elegible_actions['editor']==self.specific_editor]
+                conflict_conflicts = conflict_calculator.conflicts[conflict_calculator.conflicts['editor']==self.specific_editor]
+            else:            
+                conflict_all = conflict_calculator.all_actions
+                conflict_elegible = conflict_calculator.elegible_actions
+                conflict_conflicts = conflict_calculator.conflicts
+
+            source_data = {
+                'All Actions': conflict_all,
+                'Elegible Actions': conflict_elegible,
+                'Only Conflicts': conflict_conflicts
+            }            
+            df = source_data[source]
+        else:        
+            df = self.uds[source]
             
-        conflict_calculator.calculate()
-        clear_output()
-        
-        if self.specific_editor != None:
-            conflict_all = conflict_calculator.all_actions[conflict_calculator.all_actions['editor']==self.specific_editor]
-            conflict_elegible = conflict_calculator.elegible_actions[conflict_calculator.elegible_actions['editor']==self.specific_editor]
-            conflict_conflicts = conflict_calculator.conflicts[conflict_calculator.conflicts['editor']==self.specific_editor]
-        else:            
-            conflict_all = conflict_calculator.all_actions
-            conflict_elegible = conflict_calculator.elegible_actions
-            conflict_conflicts = conflict_calculator.conflicts
-        
-        source_data = {
-            'All Actions': conflict_all,
-            'Elegible Actions': conflict_elegible,
-            'Only Conflicts': conflict_conflicts
-        }
-        df = source_data[source]
-        #df = self.sources[source]
 
         df = df[(df.rev_time.dt.date >= _range1) &
                 (df.rev_time.dt.date <= _range2)]
