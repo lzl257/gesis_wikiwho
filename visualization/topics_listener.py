@@ -29,7 +29,10 @@ class TopicsListener():
                 action_type = "edit"
         elif "Undid revision" in comment:
             action_type = "undid revision " + comment.split(" ")[2]
-            self.talk_content.loc[self.talk_content['revid']==int(comment.split(" ")[2]), 'topics'] += ': deleted'
+            try:
+                self.talk_content.loc[self.talk_content['revid']==int(comment.split(" ")[2]), 'topics'] += ': deleted'
+            except:
+                pass
         else:
             action_type = ' '.join(comment.split(" ")[0:2])
         return action_type
@@ -58,9 +61,12 @@ class TopicsListener():
         #iterrating over empty revision content
         for i, row in null_topic.iterrows():
             torev = row['revid']
-            fromrev = self.talk_content.iloc[i+1]['revid']
-            #appending diff content
-            self.talk_diff = self.talk_diff.append(wikipediadv_ins.get_talk_rev_diff(fromrev=fromrev, torev=torev), ignore_index=True)
+            if i != self.talk_content.index[-1]:
+                fromrev = self.talk_content.iloc[i+1]['revid']
+                #appending diff content
+                self.talk_diff = self.talk_diff.append(wikipediadv_ins.get_talk_rev_diff(fromrev=fromrev, torev=torev), ignore_index=True)
+            else:
+                pass
         
         self.talk_diff = self.talk_diff.rename(columns={"*":"comment"})
         
@@ -68,7 +74,7 @@ class TopicsListener():
         for comment in self.talk_diff['comment']:
             if re.search('==(.+?)==', comment):
                 rev_id = self.talk_diff.loc[self.talk_diff['comment']==comment,'torevid']
-                self.talk_content.loc[self.talk_content['revid']==int(rev_id), 'topics'] = re.search('==(.+?)==', comment).group(0)[2:-2]
+                self.talk_content.loc[self.talk_content['revid'].isin(rev_id), 'topics'] = re.search('==(.+?)==', comment).group(0)[2:-2]
 
     def listen(self, begin, end, granularity):
         df = self.df
@@ -77,7 +83,6 @@ class TopicsListener():
         groupped_df = filtered_df.groupby([pd.Grouper(key='year_month', freq=granularity[0]), pd.Grouper(key='topics')]).count().reset_index()
 
         # Plot Graph
-        
 
         data = []
         topic_count = filtered_df.groupby(by="topics").count().sort_values('user', ascending=False)
@@ -96,11 +101,13 @@ class TopicsListener():
                                        yaxis=dict(title='Comments',
                                                   ticklen=5, gridwidth=2),
                                        legend=dict(x=0, y=1.2),
-                                       showlegend=True, barmode='group')
+                                       showlegend=True, barmode='group', bargap=0.2)
 
 
-
-        plotly.offline.init_notebook_mode(connected=True)
-        plotly.offline.iplot({"data": data, "layout": layout})
+        if len(data) == 0:
+            print('No data here!')
+        else:
+            plotly.offline.init_notebook_mode(connected=True)
+            plotly.offline.iplot({"data": data, "layout": layout})
 
         self.df_plotted = groupped_df
